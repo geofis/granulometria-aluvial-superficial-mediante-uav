@@ -1,8 +1,8 @@
 ---
 title: "Estimación de la granulometría de carga gruesa superficial mediante fotografías de alta resolución tomadas por UAV"
-author: José Ramón Martínez Batlle, UASD
-  <br> joseramon@geografiafisica.org
-date: <span style="font-size:60%;"> XVIII Jornada de Investigación Científica, UASD <br> 12, 13 y 14 de noviembre, 2019 <br> Santo Domingo, República Dominicana <br> https://geofis.github.io/granulometria-aluvial-superficial-mediante-uav/</span>
+author: José Ramón Martínez Batlle
+  #<br> joseramon@geografiafisica.org
+date: XVIII Jornada de Investigación Científica, UASD <br> 12, 13 y 14 de noviembre, 2019 <br> Santo Domingo, República Dominicana <br> https://geofis.github.io/granulometria-aluvial-superficial-mediante-uav/
 output:
   revealjs::revealjs_presentation:
     template: defaultmodificada.html
@@ -191,7 +191,6 @@ autogt %>% gather(variable, valor, a_auto:b_auto) %>% ggplot() +
 cbind(statgt2, statauto2) %>% kableExtra::kable()
 ```
 
-
 ## Correlación
 
 ```{r, echo=F, warning=F, message=F}
@@ -232,6 +231,24 @@ t.test(autogt$b_auto, autogt$b_groundt, paired = T)
 
 * Una cantidad aun no cuantificada de __falsos positivos__
 
+## Medir-detectar bloques
+
+```{r, echo=F, eval=F, warning=F, message=F}
+library(RColorBrewer)
+hexgrid <- st_make_grid(auto2, square = F, n = c(20,20))
+hexgrid <- st_as_sf(hexgrid, gridid=1:length(hexgrid))
+hexgridauto <- st_intersection(hexgrid, st_centroid(auto2)) %>%
+  group_by(gridid) %>%
+  summarise(media=mean(a_auto), max=max(a_auto)) %>% 
+  st_drop_geometry()
+hexgrid %>% inner_join(hexgridauto) %>% st_write('data/hexgrid.gpkg', driver = 'GPKG')
+```
+
+![](img/detectar_bloques.gif)
+
+## Medir-detectar gravilla
+
+## ![](img/detectar_gravilla.gif)
 
 # Discusión y perspectivas
 
