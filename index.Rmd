@@ -29,7 +29,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Carga gruesa
 
-* La carga gruesa son materiales de dimensiones __más grandes que la del grano de arena__, transportados por cursos fluviales __mediante reptación, arrastre o saltación__.
+* La carga gruesa son materiales de dimensiones __mayores a las del grano de arena__, transportados por cursos fluviales __mediante reptación, arrastre o saltación__.
 
 <img src="img/dimensiones_clastos_depende_de_02.png"  height="55%" width="55%">
 
