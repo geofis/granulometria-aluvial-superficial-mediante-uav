@@ -2,7 +2,7 @@
 title: "Estimación de la granulometría de carga gruesa superficial mediante fotografías de alta resolución tomadas por UAV"
 author: José Ramón Martínez Batlle, UASD
   <br> joseramon@geografiafisica.org
-date: <span style="font-size:60%;"> "XVIII Jornada de Investigación Científica, UASD <br> 12, 13 y 14 de noviembre, 2019 <br> Santo Domingo, República Dominicana <br> https://geofis.github.io/granulometria-aluvial-superficial-mediante-uav/"</span>
+date: <span style="font-size:60%;"> XVIII Jornada de Investigación Científica, UASD <br> 12, 13 y 14 de noviembre, 2019 <br> Santo Domingo, República Dominicana <br> https://geofis.github.io/granulometria-aluvial-superficial-mediante-uav/</span>
 output:
   revealjs::revealjs_presentation:
     template: defaultmodificada.html
@@ -27,6 +27,18 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Introducción
 
+## Carga gruesa
+
+* La carga gruesa son materiales de dimensiones __superiores más grandes que el grano de arena__, transportados por cursos fluviales __mediante reptación, arrastre o saltación__.
+
+<img src="img/dimensiones_clastos_depende_de_02.png"  height="55%" width="55%">
+
+## 
+
+* Esta carga suele depositarse en el __lecho del río__, pero también ocupa __bancos laterales y bancos medianos__ en cursos de montaña y estacionales.
+
+* La carga gruesa es una __huella dactilar del río__, revela su régimen de crecidas/inundaciones, así como las características geológicas y geomorfológicas de su cuenca.
+
 ## ![](img/dimensiones_clastos.png)
 Según @bunte2001sampling
 
@@ -41,7 +53,9 @@ Según @bunte2001sampling
 
 ## ![](img/dimensiones_clastos_depende_de_01.png)
 
-## ![](img/dimensiones_clastos_depende_de_02.png)
+## Objetivo
+
+* Evaluar la __precisión de mediciones__ de clastos realizadas en __terreno__ (*ground truth*) contra mediciones realizadas con __técnicas fotogramétricas__ (semiautomáticas).
 
 # Metodología
 
@@ -73,19 +87,21 @@ Según @bunte2001sampling
 
 ## 
 
-* Dos visitas entre julio y septiembre de 2019, para cubrir un área de ~10x15 m en un banco lateral del río Mana, proximidades de La Represa, Villa Altagracia.
+* __Dos visitas__ entre julio y septiembre de 2019, para cubrir un área de __~10x15 m en un banco lateral del río Mana__, proximidades de La Represa-El Cidral, Villa Altagracia.
 
-* En la primera visita, a modo de prueba, se voló con plan vuelo a 10 m de altura. Se procesaron los cuadros y se determinó altura de vuelo/GSD idónea, tamaño de etiquetas y número de clastos para *ground truth*
+* En la __primera visita__, a modo de prueba, se utilizó un __plan vuelo a 10 m__ de altura para el drone. Se procesaron las imágenes y se determinó la altura de vuelo/GSD idónea, así como el tamaño de las etiquetas a colocar a los clastos. En esta visita también se midieron 100 clastos con cinta métrica para aplicar *ground truth*, las cuales mostraron correlación (de forma combinada) con las mediciones tomadas de la ortofoto.
 
-* En la segunda visita se realizaron dos vuelos manuales, uno a 3 m (vuelo bajo) y otro a 5 m (vuelo medio).
+* En la __segunda visita__ se realizaron __dos vuelos manuales__ sobre las 10 am, uno a 3 m (vuelo bajo) y otro a 5 m (vuelo medio).
 
 ##
 
-* En el vuelo bajo se colectaron ~200 cuadros a 3 m, GSD 0.8 mm, se realizó restitución y se generaron DSM, ortofoto (1 mm de resolución, y remuestre posterior a 3 mm) y otros productos.
+* En el __vuelo bajo se colectaron ~200 imágenes__ (GSD 0.8 mm), se realizó restitución y se generaron DSM, ortofoto (1 mm de resolución, y remuestre posterior a 3 mm) y otros productos.
 
-* ~100 fotos a 5 m, las cuales se restituyeron pero sólo se reservaron, dado que las del vuelo bajo eran idóneas para el objetivo propuesto.
+* En el __vuelo medio se tomaron ~100 imágenes__, las cuales se restituyeron pero simplemente se reservaron, dado que las del vuelo bajo eran idóneas para el objetivo propuesto.
 
-* Para *ground truth*, se midieron 100 clastos en la primera visita y 76 clastos en la segunda
+* Para *ground truth*, en esta visita se midieron __76 clastos__ con cinta métrica.
+
+## <img src="img/qgis_contexto_isla.png"  width="100%">
 
 ## <img src="img/aoi_lejos.png"  width="100%">
 
@@ -95,48 +111,156 @@ Según @bunte2001sampling
 
 
 ```{sql, eval=F, echo=F}
+#En servidor ODKAggregate
 COPY (
   SELECT * FROM "CANTOMETRIA3_CORE" core INNER JOIN "CANTOMETRIA3_CLASTOS" clastos on clastos."_PARENT_AURI"=core."_URI")
   TO '/tmp/cantometria.csv' DELIMITER ',' NULL AS 'NULL' csv header;
 ```
 
-## Ground-truth
+## <img src="img/imagej.png"  width="80%">
+
+## <img src="img/qgis_gif.gif"  width="100%">
+
+## *Ground truth*
 
 ```{r, echo=F, warning=F, message=F}
 library(tidyverse)
-d <- read_csv('data/cantometria.csv')
-d %>%
-  select(idmuestra=`_URI`, idelemento=MEDICIONES_CODIGOCLASTO, a=MEDICIONES_A, b=MEDICIONES_B) %>% 
-  filter(idmuestra=='uuid:6cdd28b7-f9f3-4fbb-90db-52dc34fcfebd') %>% 
-  gather(variable, valor, a:b) %>% 
-  ggplot() + aes(x=valor) + geom_histogram(bins=10) + scale_x_continuous(trans = 'log10') + facet_wrap(variable~.)
+gt <- read_csv('data/cantometria.csv')
+gt2 <- gt %>%
+  select(idmuestra=`_URI`,
+         idelemento=MEDICIONES_CODIGOCLASTO, a_groundt=MEDICIONES_A, b_groundt=MEDICIONES_B) %>%
+  filter(idmuestra=='uuid:6cdd28b7-f9f3-4fbb-90db-52dc34fcfebd')
+gt2 %>% gather(variable, valor, a_groundt:b_groundt) %>% ggplot() +
+  aes(x=valor, fill=variable) + geom_density(alpha=0.4) +
+  scale_x_continuous(trans = 'log10') + facet_wrap(variable~.)
 ```
 
+## *Ground truth*
+
+```{r}
+gt2 %>% gather(variable, valor, a_groundt:b_groundt) %>% ggplot() +
+  aes(x=variable, y=valor, fill=variable) +
+  geom_boxplot(alpha=0.4) + scale_y_continuous(trans = 'log10')
+```
+
+## *Ground truth*
+
+```{r, echo=F, warning=F, message=F}
+statgt2 <- gt2 %>% dplyr::select(a_groundt,b_groundt) %>%
+  summarise_each(funs(mean, median, sd), a_groundt:b_groundt) %>%
+  gather() %>% mutate(value=round(value,2))
+statgt2 %>% kableExtra::kable()
+```
+
+## Mediciones semiautomáticas
+
+```{r, echo=F, warning=F, message=F}
+library(sf)
+auto <- st_read(dsn = 'data/odm_orthophoto_png_from_tif_segmented_noise_tolerance_25_particles_500_infinity_gtiff_rectangulos_02.gpkg', quiet = T)
+cat('Número de rectángulos delimitadores:', nrow(auto))
+auto2 <- auto %>% dplyr::select(idelemento=label, a_auto=height, b_auto=width) %>% 
+  mutate(a_auto=a_auto*1000, b_auto=b_auto*1000)
+autogt <- auto2 %>% inner_join(gt2)
+statauto2 <- autogt %>% dplyr::select(a_auto,b_auto) %>% st_drop_geometry() %>% 
+  summarise_each(funs(mean, median, sd), a_auto:b_auto) %>%
+  gather() %>% mutate(value=round(value,2))
+statauto2 %>% kableExtra::kable()
+```
+
+## Mediciones semiautomáticas
+
+```{r, echo=F, warning=F, message=F}
+autogt %>% gather(variable, valor, a_auto:b_auto) %>% ggplot() +
+  aes(x=valor, fill=variable) + geom_density(alpha=0.4) +
+  scale_x_continuous(trans = 'log10') + facet_wrap(variable~.)
+```
+
+## Mediciones semiautomáticas
+
+```{r}
+autogt %>% gather(variable, valor, a_auto:b_auto) %>% ggplot() +
+  aes(x=variable, y=valor, fill=variable) +
+  geom_boxplot(alpha=0.4) + scale_y_continuous(trans = 'log10')
+```
+
+## Estadísticos comparados, correlación y diferencias entre *ground truth* y metodología semiautomática
+
+## Estadísticos comparados
+
+```{r, echo=F, warning=F, message=F}
+cbind(statgt2, statauto2) %>% kableExtra::kable()
+```
+
+
+## Correlación
+
+```{r, echo=F, warning=F, message=F}
+library(ez)
+autogt %>%
+  dplyr::select(matches('^a')) %>%
+  st_drop_geometry() %>% ezCor()
+```
+
+##
+
+```{r, echo=F, warning=F, message=F}
+autogt %>%
+  dplyr::select(matches('^b')) %>%
+  st_drop_geometry() %>% ezCor()
+
+```
+
+## 
+
+```{r, echo=F, warning=F, message=F}
+t.test(autogt$a_auto, autogt$a_groundt)
+t.test(autogt$b_auto, autogt$b_groundt)
+```
+
+## 
+
+```{r, echo=F, warning=F, message=F}
+t.test(autogt$a_auto, autogt$a_groundt, paired = T)
+t.test(autogt$b_auto, autogt$b_groundt, paired = T)
+```
+
+## Fallos:
+
+* Falsos negativos: clastos codificados como "017", "050" y "074".
+
+* El eje b no siempre se logra capturar adecuadamente.
+
+* Una cantidad aun no cuantificada de __falsos positivos__
 
 
 # Discusión y perspectivas
 
 ## Discusión
 
-* La __metodología demuestra ser viable__ para superficies con exposición directa al sol; bajo dosel, o con plantas arbustivas, la segmentación sería difícilmente practicable.
+* Los falsos positivos, los falsos negativos y las imprecisiones en el eje b, pueden mejorarse sobrevolando en horarios de mediodía.
 
-* Las clases de __clastos mayores__ (guijarros y bloques, >64 mm) dieron las __mejores correspondencias__ entre ground-truth y medición informática.
+* Igualmente, se lograrían mejores rectángulos delimitadores, utilizando segmentando con técnicas de *machine learning*.
 
-* En las __gravas se registran los mayores errores__ de medición informatizada, al ser difícil segmentarlas por su menor tamaño y por su habitual solapamiento con otros elementos.
+* Una __desventaja remarcable es la capacidad de cómputo requerida__ para la restitución fotogramétrica. Esta limitante puede solventarse adquiriendo servicios en la nube, una alternativa sólo viable si la demanda es esporádica. En caso de demanda recurrente, es preferible disponer de estación de trabajo con suficientes recursos de memoria.
 
 ## 
 
+* La __metodología demuestra ser viable__ para superficies con exposición directa al sol.
+
+* __Bajo dosel__, o con plantas arbustivas, la segmentación generaría __resultados inapropiados__ o difícilmente aprovechables.
+
 * La metodología propuesta, por su bajo coste, es una __alternativa idónea para evaluar la granulometría de carga gruesa superficial__, pudiendo ser útil para la detección de los peligrosos depósitos de __*debris flows*__.
 
-* Una __desvantaja remarcable es la capacidad de cómputo requerida__ para la restitución fotogramétrica. Esta limitante puede solventarse adquiriendo servicios en la nube, una alternativa sólo viable si la demanda es esporádica.
 
 ## Perspectivas
 
-* Aplicar la metodología a __superficies menos desafiantes__ y más grandes.
+* Aplicar la metodología a __superficies menos desafiantes__ (sin arbustos, con mejor iluminación), pero más grandes.
 
 * Introducir algoritmos de __*machine learning*__ en la segmentación (e.g. Weka).
 
 * Añadir la __capa de DSM__ para afinar mejor la segmentación de clastos.
+
+* Analizar __forma del clasto__, ángulos de los ejes y evaluar tipología litológica.
 
 * Combinar con __geomórfonos__.
 
