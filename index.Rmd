@@ -29,13 +29,13 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Carga gruesa
 
-* La carga gruesa son materiales de dimensiones __superiores más grandes que el grano de arena__, transportados por cursos fluviales __mediante reptación, arrastre o saltación__.
+* La carga gruesa son materiales de dimensiones __más grandes que la del grano de arena__, transportados por cursos fluviales __mediante reptación, arrastre o saltación__.
 
 <img src="img/dimensiones_clastos_depende_de_02.png"  height="55%" width="55%">
 
 ## 
 
-* Esta carga suele depositarse en el __lecho del río__, pero también ocupa __bancos laterales y bancos medianos__ en cursos de montaña y estacionales.
+* Esta carga suele depositarse en el __lecho del río__, pero también ocupa __bancos laterales y bancos medianos__ en cursos de montaña y/o estacionales.
 
 * La carga gruesa es una __huella dactilar del río__, revela su régimen de crecidas/inundaciones, así como las características geológicas y geomorfológicas de su cuenca.
 
